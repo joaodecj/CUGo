@@ -1,0 +1,22 @@
+# Checking the results
+library(gamlss)
+set.seed(10)
+n<-100
+# Case 1: without regressors
+mu_true<-.7
+sigma_true<-7
+mu_result<-sigma_result<-c()
+logit_link<-make.link("logit")
+log_link<-make.link("log")
+for (i in 1:10) {
+  y<-rCUGo(n,mu_true,sigma_true)
+  fit1<-gamlss(y~1, family="CUGo", trace = F)
+  mu_result[i]<-logit_link$linkinv(fit1$mu.coefficients)
+  sigma_result[i]<-log_link$linkinv(fit1$sigma.coefficients)
+}
+
+result1<- matrix(c(mu_true, mean(mu_result),
+                   sigma_true, mean(sigma_result)),2,2)
+colnames(result1)<-c("mu","sigma")
+rownames(result1)<-c("true value","mean")
+print(round(result1,2))
