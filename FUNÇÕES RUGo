@@ -1,0 +1,40 @@
+# 1-distribuicao_CUGo.R
+rm(list = ls())
+
+# Densidade
+dCUGo <- function(y, mu = 0.7, sigma = 0.5, log = FALSE) {
+  if (any(mu <= 0) | any(mu >= 1)) stop("mu must be between 0 and 1")
+  if (any(sigma <= 0)) stop("sigma must be positive")
+  if (any(y <= 0) | any(y >= 1)) stop("y must be between 0 and 1")
+  
+  fy1 <- (sigma*log(2)/(((1-mu)^(-sigma))-1))*((1-y)^(-sigma-1))*2^(((1-y)^(-sigma)-1)/(1-(1-mu)^(-sigma)))
+  if (!log) return(fy1)
+  log(sigma) + log(log(2)) - (sigma+1)*log(1-y) - log(((1-mu)^(-sigma))-1) + (((1-y)^(-sigma)-1)/(1-(1-mu)^(-sigma)))*log(2)
+}
+
+# Função de distribuição acumulada
+pCUGo <- function(q, mu = 0.7, sigma = 0.5, lower.tail = TRUE, log.p = FALSE) {
+  if (any(mu <= 0) | any(mu >= 1)) stop("mu must be between 0 and 1")
+  if (any(sigma <= 0)) stop("sigma must be positive")
+  if (any(q <= 0) | any(q >= 1)) stop("q must be between 0 and 1")
+  
+  cdf1 <- 1 - (1 - q^sigma)^(log(0.5)/log(1 - mu^sigma))
+  cdf <- if (lower.tail) cdf1 else 1 - cdf1
+  if (!log.p) return(cdf)
+  log(cdf)
+}
+
+# Quantil
+qCUGo <- function(u, mu, sigma) {
+  if (any(mu <= 0) | any(mu >= 1)) stop("mu must be between 0 and 1")
+  if (any(sigma <= 0)) stop("sigma must be positive")
+  if (any(u <= 0) | any(u >= 1)) stop("u must be between 0 and 1")
+  
+  1 - (1 + ((log(1 - u))/log(2)) * (1 - ((1 - mu)^(-sigma))))^(-1/sigma)
+}
+
+# Geração aleatória (inversão)
+rCUGo <- function(n, mu, sigma) {
+  u <- runif(n)
+  qCUGo(u, mu, sigma)
+}
